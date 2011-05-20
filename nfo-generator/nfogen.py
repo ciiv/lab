@@ -15,7 +15,7 @@ import urllib, urllib2
 import xml.etree.ElementTree as ET
 
 TVDB_API_KEY = ""
-TVDB_API_FILE = r"/volume1/tools/nfogen.py"
+TVDB_API_FILE = r"/volume1/tools/tvdb.key"
 ROOT_MEDIA_DIR = r"/volume1/incoming"
 CONTROL_FILE = ".control.conf"
 VERBOSE_MODE = False
