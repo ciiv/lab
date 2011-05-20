@@ -37,13 +37,15 @@ def load_api_key ():
     if not TVDB_API_KEY:
         print "[E] Unable to load the API KEY."
         sys.exit (1)
-    print "[*] Loaded API Key [%s]" % TVDB_API_KEY
+    if VERBOSE_MODE:
+        print "[*] Loaded API Key [%s]" % TVDB_API_KEY
     
 def check_service_status ():
     url = "http://www.thetvdb.com/"
     try:
         urllib2.urlopen (url).read ()
-        print "[*] TVDB.com service is available" 
+        if VERBOSE_MODE:
+            print "[*] TVDB.com service is available" 
         return
     except urllib2.HTTPError as herror:
         print "[E] Unable to open %s: %s (HTTP %s)." % (url, herror.msg, herror.code)
@@ -67,7 +69,7 @@ def find_content_dirs ():
         if CONTROL_FILE in files:
             _content_dirs.append (root)
             del dirs[:] # prevent from visiting any subdirectories
-    print "[*] Found [%i] relevant folders" % len (_content_dirs)
+    print "[*] Found [%i] relevant folders in %s" % (len (_content_dirs), ROOT_MEDIA_DIR)
     for item in _content_dirs:
         print "[+]  ~> %s" % item
 
