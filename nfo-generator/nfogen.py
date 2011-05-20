@@ -4,6 +4,10 @@
 __author__ = "Mathieu Cadet <mathieu cadet at gmail>"
 __version__ = "$Revision: 1.0 $"
 
+# TODO
+# - command lines argument
+# - chmod nfos and thumbs to 555 
+
 import os, sys
 import re
 import codecs
@@ -11,8 +15,8 @@ import urllib, urllib2
 import xml.etree.ElementTree as ET
 
 TVDB_API_KEY = ""
-TVDB_API_FILE = r"C:\Users\Athrun\Desktop\tvdb.key"
-ROOT_MEDIA_DIR = r"C:\Users\Athrun\Desktop\to NAS\fake root"
+TVDB_API_FILE = r"/volume1/tools/nfogen.py"
+ROOT_MEDIA_DIR = r"/volume1/incoming"
 CONTROL_FILE = ".control.conf"
 VERBOSE_MODE = False
 
