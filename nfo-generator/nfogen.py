@@ -182,6 +182,10 @@ def fetch_data (control_data, root, files, overwrite=False):
     if overwrite or not os.path.exists (os.path.join (root, "tvshow.nfo")):
         # fetch data
         tvshow_details = get_xml_content (show_details_url)
+        
+        if not tvshow_details:
+            return  # don't waste time
+        
         show_data = { 
             "id": tvshow_details.findtext ("Series/id"),
             "title": control_data.get ("title", tvshow_details.findtext ("Series/SeriesName")),
