@@ -1,0 +1,44 @@
+"don't be compatible with vi
+set nocompatible
+
+syntax on
+
+"Display number on the left
+set number
+
+"use all indenting functions
+set autoindent
+set cindent
+set smartindent
+
+"set the indent level
+set softtabstop=4
+set shiftwidth=4
+set tabstop=4
+set expandtab
+
+"search : incremental, no case and highlight
+set incsearch
+set ignorecase
+set infercase
+set hlsearch
+
+"use UTF-8 Encoding
+set fileencoding=utf-8
+set encoding=utf-8
+
+set backup
+set backupdir=~/.vim/backup
+
+" Make backspace delete lots of things
+set backspace=indent,eol,start
+
+" Make % bounce between angled brackets and other things
+set matchpairs+=<:>
+
+" turn off any existing search
+au VimEnter * nohls
+
+" Show tabs and trailing whitespace visually
+set list listchars=tab:>-,trail:·,extends:>
+
