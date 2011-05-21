@@ -18,7 +18,7 @@ TVDB_API_KEY = ""
 TVDB_API_FILE = r"/volume1/tools/tvdb.key"
 ROOT_MEDIA_DIR = r"/volume1/incoming"
 CONTROL_FILE = ".control.conf"
-VERBOSE_MODE = False
+VERBOSE_MODE = True
 
 MEDIA_FILE_EXT = [".avi", ".mkv", ".mov", ".mp4", ".wbem", ".ogm",]
 EPISODES_PATTERN = re.compile (r"[sS](?P<season>\d+)[eE](?P<episode>\d+)")
@@ -183,7 +183,7 @@ def fetch_data (control_data, root, files, overwrite=False):
         # fetch data
         tvshow_details = get_xml_content (show_details_url)
         
-        if not tvshow_details:
+        if tvshow_details is None:
             return  # don't waste time
         
         show_data = { 
@@ -209,7 +209,7 @@ def fetch_data (control_data, root, files, overwrite=False):
     # Fetch TV show cover art
     if overwrite or not os.path.exists (os.path.join (root, u"folder.jpg")):
         # fetch and write folder.jpg
-        if not tvshow_details:
+        if tvshow_details is None:
             tvshow_details = get_xml_content (show_details_url)
         
         if tvshow_details:
@@ -221,26 +221,32 @@ def fetch_data (control_data, root, files, overwrite=False):
     # Fetch Episode information for each media file
     for file in files:
         episode_details = None
+        episode_id = None
+        if re.search (r"TVDBID(?P<tvdbid>\d+)", file["path"]):
+            episode_id = re.search (r"TVDBID(?P<tvdbid>\d+)", file["path"]).group ("tvdbid")
+
         if overwrite or not os.path.exists (u"%s.nfo" % os.path.splitext (file["path"])[0]):
             # fetch and write tvshow.nfo
-            if not tvshow_details:
+            if tvshow_details is None:
                 tvshow_details = get_xml_content (show_details_url)
             
             if tvshow_details:
                 for element in tvshow_details.getiterator ("Episode"):
                     if VERBOSE_MODE:
-                        print "Target: [S%sE%s], Got: [%s - S%sE%s]" % \
+                        print "Target: [S%sE%sID%s], Got: [%s - S%sE%s]" % \
                                     (file ["season"],
                                     file ["episode"],
+                                    episode_id,
                                     element.findtext ("EpisodeName"),
                                     element.findtext ("SeasonNumber"),
                                     element.findtext ("EpisodeNumber"))
-                    if int (element.findtext ("SeasonNumber")) == file ["season"] and \
-                        int (element.findtext ("EpisodeNumber")) == file ["episode"]:
+                    if (int (element.findtext ("SeasonNumber")) == file ["season"] and \
+                        int (element.findtext ("EpisodeNumber")) == file ["episode"]) or \
+                       (episode_id and element.findtext ("id") == episode_id):
                         episode_details = element
                         break
                 
-                if not episode_details: 
+                if episode_details is None:
                     print "[!] No details were found for [%s]" % file ["path"]
                     continue # No details were found, so go to the next file
                     
@@ -277,19 +283,19 @@ def fetch_data (control_data, root, files, overwrite=False):
         # Fetch Episode thumbnail
         if overwrite or not os.path.exists (u"%s.tbn" % os.path.splitext (file["path"])[0]):
             # fetch and write tvshow.nfo
-            if not tvshow_details:
+            if tvshow_details is None:
                 tvshow_details = get_xml_content (show_details_url)
             
             if tvshow_details:
                 # try to reuse previous lookup before doing it again
-                if not episode_details:
+                if episode_details is None:
                     for element in tvshow_details.getiterator ("Episode"):
                         if int (element.findtext ("SeasonNumber")) == file ["season"] and \
                            int (element.findtext ("EpisodeNumber")) == file ["episode"]:
                             episode_details = element
                             break
                 
-                if not episode_details: 
+                if episode_details is None: 
                     print "[!] No details were found for [%s]" % file ["path"]
                     continue # No details were found, so go to the next file
                     
