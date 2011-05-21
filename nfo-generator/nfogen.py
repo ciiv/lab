@@ -18,7 +18,7 @@ TVDB_API_KEY = ""
 TVDB_API_FILE = r"/volume1/tools/tvdb.key"
 ROOT_MEDIA_DIR = r"/volume1/incoming"
 CONTROL_FILE = ".control.conf"
-VERBOSE_MODE = True
+VERBOSE_MODE = False
 
 MEDIA_FILE_EXT = [".avi", ".mkv", ".mov", ".mp4", ".wbem", ".ogm",]
 EPISODES_PATTERN = re.compile (r"[sS](?P<season>\d+)[eE](?P<episode>\d+)")
