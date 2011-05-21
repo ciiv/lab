@@ -6,7 +6,7 @@ __version__ = "$Revision: 1.0 $"
 
 # TODO
 # - command lines argument
-# - chmod nfos and thumbs to 555 
+# - chmod nfos and thumbs to 555 (maybe not necessary) 
 
 import os, sys
 import re
@@ -43,7 +43,7 @@ def load_api_key ():
         sys.exit (1)
     if VERBOSE_MODE:
         print "[*] Loaded API Key [%s]" % TVDB_API_KEY
-    
+
 def check_service_status ():
     url = "http://www.thetvdb.com/"
     try:
@@ -96,35 +96,35 @@ def find_media_files (base_dir):
         for file in files:
             if os.path.splitext (file)[1].lower () in MEDIA_FILE_EXT:
                 season = episode = None
-                
+
                 # Try to find the season first (using the root directory)
                 if SEASONS_DIR_PATTERN.search (os.path.basename (root)):
                     season = int (SEASONS_DIR_PATTERN.search (os.path.basename (root)).group ("season"))
                 # Try to flag "special" episodes too
                 elif re.search ("[sS][pP][eE][cC][iI][aA][lL]", (os.path.basename (root))):
                     season = 0
-                 
+
                 # Now try to get the episode number from the filename (using S0XE0X format)
                 if EPISODES_PATTERN.search (file):
                     result = EPISODES_PATTERN.search (file)
                     if not season: # Get the season too is it wasn't found before
                         season = int (result.group ("season"))
                     episode = int (result.group ("episode"))
-                    
+
                 # Finally try to get the episode number from the filename (using Absolute numbering format)
                 if not episode and ABSOLUTE_NUMBER_PATTERN.search (file):
                     episode = int (ABSOLUTE_NUMBER_PATTERN.search (file).group ("episode"))
-                    
+
                 if season is None:
                     season = 1
                 if episode is None:
                     continue # don't add anything if episode number was not identified correctly
-                
+
                 media_files.append ({"path": os.path.join (root, file),
                                      "season": season,
                                      "episode": episode,})
     return media_files
-    
+
 def fetch_data (control_data, root, files, overwrite=False):
     # Here connect to TVDB and get the information
     # and then call write_metadata for each episode - and the show itself
@@ -202,8 +202,8 @@ def fetch_data (control_data, root, files, overwrite=False):
         indent_xml (xml_tvshow)
         xml_tree = ET.ElementTree (xml_tvshow)
         xml_tree.write (os.path.join (root, "tvshow.nfo"),
-                         encoding="utf-8", )
-                         #xml_declaration=True) # This only appeared with py 2.7
+                         encoding="utf-8",
+                         xml_declaration=True) # This only appeared with py 2.7
         _nfo_stats ["shows"] += 1
             
     # Fetch TV show cover art
@@ -270,8 +270,8 @@ def fetch_data (control_data, root, files, overwrite=False):
                 indent_xml (xml_episode)
                 xml_tree = ET.ElementTree (xml_episode)
                 xml_tree.write (u"%s.nfo" % os.path.splitext (file["path"])[0],
-                                 encoding="utf-8", )
-                                 #xml_declaration=True) # This only appeared with py 2.7
+                                 encoding="utf-8",
+                                 xml_declaration=True) # This only appeared with py 2.7
                 _nfo_stats ["episodes"] += 1
                 
         # Fetch Episode thumbnail
