@@ -5,6 +5,7 @@ This script will search for media files corresponding to TV shows for which ther
 is an entry in [thetvdb.com](http://www.thetvdb.com).
 
 For those who matches, the script will generate:
+
  * A tvshow.nfo file in the root folder of the show
  * A folder.jpg file in the root folder of the show
  * A .nfo file for each found episode
