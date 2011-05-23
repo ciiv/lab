@@ -4,14 +4,18 @@
 __author__ = "Mathieu Cadet <mathieu cadet at gmail>"
 __version__ = "$Revision: 1.0 $"
 
-# TODO
-# - command lines arguments with argparse
-# - flexible logging
-# - check python version
+import sys
+if sys.version_info < (2, 7):
+    print "[E] Python 2.7 is required!"
+    sys.exit (1)
 
-import os, sys
+# TODO
+# - flexible logging
+
+import os
 import re
 import codecs
+import argparse
 import urllib, urllib2
 import xml.etree.ElementTree as ET
 
@@ -20,6 +24,7 @@ TVDB_API_FILE = r"/volume1/tools/tvdb.key"
 ROOT_MEDIA_DIR = r"/volume1/incoming"
 CONTROL_FILE = ".control.conf"
 VERBOSE_MODE = False
+OVERWRITE_MODE = False
 
 MEDIA_FILE_EXT = [".avi", ".mkv", ".mov", ".mp4", ".wbem", ".ogm",]
 EPISODES_PATTERN = re.compile (r"[sS](?P<season>\d+)[eE](?P<episode>\d+)")
@@ -34,9 +39,25 @@ _nfo_stats = {
     "thumbs": 0,
 }
 
-if sys.version_info < (2, 7):
-    print "[E] Python 2.7 is required!"
-    sys.exit (1)
+
+def setup_argparse ():
+    desc = """
+    Generate metadata content (NFOs, TBNs) from media files, to be used by media players such
+    as the Boxee Box.
+    """
+    global ROOT_MEDIA_DIR, TVDB_API_FILE, TVDB_API_KEY, VERBOSE_MODE, OVERWRITE_MODE
+    parser = argparse.ArgumentParser(description=desc)
+    parser.add_argument ("-o", "--overwrite", nargs="?", type=bool, const=True, default=False)
+    parser.add_argument ("-v", "--verbose", nargs="?", type=bool, const=True, default=False)
+    parser.add_argument ("-r", "--root", default=ROOT_MEDIA_DIR)
+    parser.add_argument ("-f", "--tvdb-key-file", default=TVDB_API_FILE)
+    parser.add_argument ("-k", "--tvdb-key", default=TVDB_API_KEY)
+    args = parser.parse_args ()
+    OVERWRITE_MODE = args.overwrite
+    VERBOSE_MODE = args.verbose
+    ROOT_MEDIA_DIR = args.root
+    TVDB_API_FILE = args.tvdb_key_file
+    TVDB_API_KEY = args.tvdb_key
 
 def load_api_key ():
     global TVDB_API_KEY
@@ -342,10 +363,10 @@ def generate_metadata ():
     for item in _content_dirs:
         control = parse_control_file (os.path.join (item, CONTROL_FILE))
         files = find_media_files (item)
-        fetch_data (control, item, files, overwrite=False)
+        fetch_data (control, item, files, overwrite=OVERWRITE_MODE)
 
 def main ():
-    print
+    setup_argparse ()
     load_api_key ()
     check_service_status ()
     find_content_dirs ()
