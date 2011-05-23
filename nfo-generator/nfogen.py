@@ -34,6 +34,10 @@ _nfo_stats = {
     "thumbs": 0,
 }
 
+if sys.version_info < (2, 7):
+    print "[E] Python 2.7 is required!"
+    sys.exit (1)
+
 def load_api_key ():
     global TVDB_API_KEY
     if not TVDB_API_KEY:
@@ -249,11 +253,11 @@ def fetch_data (control_data, root, files, overwrite=False):
                        (episode_id and element.findtext ("id") == episode_id):
                         episode_details = element
                         break
-                
+
                 if episode_details is None:
                     print "[!] No details were found for [%s]" % file ["path"]
                     continue # No details were found, so go to the next file
-                    
+
                 episode_data = {
                     "show": tvshow_details.findtext ("Series/SeriesName"),
                     "title": episode_details.findtext ("EpisodeName"),
@@ -264,7 +268,7 @@ def fetch_data (control_data, root, files, overwrite=False):
                     "runtime": tvshow_details.findtext ("Series/Runtime"),
                     "aired": episode_details.findtext ("FirstAired"),
                 }
-                
+
                 print "[*] Generating NFO file for [%s] - S%sE%s" % (episode_data ["show"], 
                                                                   episode_data ["season"].zfill (2),
                                                                   episode_data ["episode"].zfill(2))
@@ -283,7 +287,7 @@ def fetch_data (control_data, root, files, overwrite=False):
                                  encoding="utf-8",
                                  xml_declaration=True) # This only appeared with py 2.7
                 _nfo_stats ["episodes"] += 1
-                
+
         # Fetch Episode thumbnail
         if overwrite or not os.path.exists (u"%s.tbn" % os.path.splitext (file["path"])[0]):
             # fetch and write tvshow.nfo
@@ -329,18 +333,17 @@ def dl_thumb (url, filepath):
         print "[E] Unable to open %s: %s." % (url, uerror.reason)
     except IOError as ierror:
         print "[E] Unable to write to %s: %s." % (ierror.filename, ierror.strerror)
-        
+
 def show_stats ():
     print "[*] Wrote [%s] tvshow.nfo and [%s] episode .nfo" % (_nfo_stats["shows"], _nfo_stats["episodes"])
     print "[*] Fetched [%s] covers and [%s] episode thumbs" % (_nfo_stats["covers"], _nfo_stats["thumbs"])
-                    
+
 def generate_metadata ():
     for item in _content_dirs:
         control = parse_control_file (os.path.join (item, CONTROL_FILE))
         files = find_media_files (item)
         fetch_data (control, item, files, overwrite=False)
-    # it may be useful to call os.fsync () at that point
-        
+
 def main ():
     print
     load_api_key ()
@@ -352,4 +355,7 @@ def main ():
         os.system ("pause")
 
 if __name__ == "__main__":
-    main ()
+    try:
+        main ()
+    except KeyboardInterrupt:
+        pass
