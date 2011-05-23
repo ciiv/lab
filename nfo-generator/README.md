@@ -1,5 +1,5 @@
-What is this does
-=================
+What this script does
+======================
 
 This script will search for media files corresponding to TV shows for which there
 is an entry in [thetvdb.com](http://www.thetvdb.com).
