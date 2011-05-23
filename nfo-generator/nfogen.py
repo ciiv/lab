@@ -5,8 +5,9 @@ __author__ = "Mathieu Cadet <mathieu cadet at gmail>"
 __version__ = "$Revision: 1.0 $"
 
 # TODO
-# - command lines argument
-# - chmod nfos and thumbs to 555 (maybe not necessary) 
+# - command lines arguments with argparse
+# - flexible logging
+# - check python version
 
 import os, sys
 import re
