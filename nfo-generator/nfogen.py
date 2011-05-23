@@ -36,10 +36,13 @@ _nfo_stats = {
 def load_api_key ():
     global TVDB_API_KEY
     if not TVDB_API_KEY:
-        with codecs.open (TVDB_API_FILE, "r", "utf-8") as key_file:
-            TVDB_API_KEY = key_file.readline ().strip ()
+        try:
+            with codecs.open (TVDB_API_FILE, "r", "utf-8") as key_file:
+                TVDB_API_KEY = key_file.readline ().strip ()
+        except:
+            pass
     if not TVDB_API_KEY:
-        print "[E] Unable to load the API KEY."
+        print "[E] Unable to load the API KEY at [%s]." % TVDB_API_FILE
         sys.exit (1)
     if VERBOSE_MODE:
         print "[*] Loaded API Key [%s]" % TVDB_API_KEY
