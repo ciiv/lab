@@ -5,10 +5,10 @@ This script will search for media files corresponding to TV shows for which ther
 is an entry in [thetvdb.com](http://www.thetvdb.com).
 
 For those who matches, the script will generate:
- -   A tvshow.nfo file in the root folder of the show
- -   A folder.jpg file in the root folder of the show
- -   A .nfo file for each found episode
- -   A .tbn file for each found episode
+ * A tvshow.nfo file in the root folder of the show
+ * A folder.jpg file in the root folder of the show
+ * A .nfo file for each found episode
+ * A .tbn file for each found episode
 
 The format used for nfo files is based on the one the [Boxee Box](http://www.boxee.tv) is using.
 This script was designed to handle US/UK TV Shows, Japanese Animes and Asian Dramas (JDrama, KDrama & CDrama).
@@ -20,6 +20,7 @@ How to use
 2. Put that API key in a tvdb.key file and edit the script so that TVDB_API_FILE points to it
 3. Modify ROOT_MEDIA_DIR to the root folder containing all your media files and folders
 4. Create a .control.conf file at the root level of every folder containing a tv show (See syntax below)
+5. Make sure Python 2.7 is installed and run the script
 
 Syntax of .control.conf file
 ============================
