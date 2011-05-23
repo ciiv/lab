@@ -17,11 +17,36 @@ This script was designed to handle US/UK TV Shows, Japanese Animes and Asian Dra
 How to use
 ===========
 
-1. Request an API Key from [thetvdb](http://www.thetvdb.com/?tab=apiregister)
-2. Put that API key in a tvdb.key file and edit the script so that TVDB_API_FILE points to it
-3. Modify ROOT_MEDIA_DIR to the root folder containing all your media files and folders
-4. Create a .control.conf file at the root level of every folder containing a tv show (See syntax below)
-5. Make sure Python 2.7 is installed and run the script
+    usage: nfogen.py [-h] [-o] [-v] [-r ROOT]
+                     [-f TVDB_KEY_FILE] [-k TVDB_KEY]
+
+    Generate metadata content (NFOs, TBNs) from media files, to be used by media
+    players such as the Boxee Box.
+
+    optional arguments:
+      -h, --help            show this help message and exit
+      -o, --overwrite
+      -v, --verbose
+      -r ROOT, --root ROOT
+      -f TVDB_KEY_FILE, --tvdb-key-file TVDB_KEY_FILE
+      -k TVDB_KEY, --tvdb-key TVDB_KEY
+
+
+Here is an example showing basic usage:
+
+    ./nfogen.py -k "070010A2303" -r /root/media/folder
+
+This is going to generate metadata for everything located below /root/media/folder
+and will use TVDB API key "070010A2303".
+You can also put the API Key in a text file and specify that file using the command-line
+argument `-f`.
+
+Note:
+
+ * You can request an TVDB API Key from there: [thetvdb.com](http://www.thetvdb.com/?tab=apiregister)
+ * Make sure Python 2.7 is installed and run the script
+ * You will have to create a .control.conf file at the root level of every folder
+   containing a tv show (See syntax below)
 
 Syntax of .control.conf file
 ============================
