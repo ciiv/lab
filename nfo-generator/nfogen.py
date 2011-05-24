@@ -349,7 +349,7 @@ def dl_thumb (url, filepath):
         with open (filepath, "wb") as img_file:
             img_file.write (content.read ())
     except urllib2.HTTPError as herror:
-        PRINT "[E] Unable to open %s: %s (HTTP %s)." % (url, herror.msg, herror.code)
+        print "[E] Unable to open %s: %s (HTTP %s)." % (url, herror.msg, herror.code)
     except urllib2.URLError as uerror:
         print "[E] Unable to open %s: %s." % (url, uerror.reason)
     except IOError as ierror:
