@@ -23,7 +23,7 @@ VERBOSE_MODE = False
 MEDIA_FILE_EXT = [".avi", ".mkv", ".mov", ".mp4", ".wbem", ".ogm",]
 EPISODES_PATTERN = re.compile (r"[sS](?P<season>\d+)[eE](?P<episode>\d+)")
 SEASONS_DIR_PATTERN = re.compile (r"[sS][eE][aA][sS][oO][nN]\s+(?P<season>\d+)")
-ABSOLUTE_NUMBER_PATTERN = re.compile (r"[\W_](?P<episode>\d+)[\W_v]")
+ABSOLUTE_NUMBER_PATTERN = re.compile (r"[\W_E](?P<episode>\d+)[\W_v]")
 
 _content_dirs = []
 _nfo_stats = {
