@@ -271,7 +271,7 @@ def fetch_data (control_data, root, files, overwrite=False):
                                     element.findtext ("EpisodeNumber"))
                     if (int (element.findtext ("SeasonNumber")) == file ["season"] and \
                         int (element.findtext ("EpisodeNumber")) == file ["episode"]) or \
-                       (EPISode_id and element.findtext ("id") == episode_id):
+                       (episode_id and element.findtext ("id") == episode_id):
                         episode_details = element
                         break
 
