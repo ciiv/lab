@@ -4,13 +4,18 @@
 __author__ = "Mathieu Cadet <mathieu cadet at gmail>"
 __version__ = "$Revision: 1.0 $"
 
-# TODO
-# - command lines argument
-# - chmod nfos and thumbs to 555 (maybe not necessary) 
+import sys
+if sys.version_info < (2, 7):
+    print "[E] Python 2.7 is required!"
+    sys.exit (1)
 
-import os, sys
+# TODO
+# - flexible logging
+
+import os
 import re
 import codecs
+import argparse
 import urllib, urllib2
 import xml.etree.ElementTree as ET
 
@@ -19,11 +24,12 @@ TVDB_API_FILE = r"/volume1/tools/tvdb.key"
 ROOT_MEDIA_DIR = r"/volume1/incoming"
 CONTROL_FILE = ".control.conf"
 VERBOSE_MODE = False
+OVERWRITE_MODE = False
 
 MEDIA_FILE_EXT = [".avi", ".mkv", ".mov", ".mp4", ".wbem", ".ogm",]
 EPISODES_PATTERN = re.compile (r"[sS](?P<season>\d+)[eE](?P<episode>\d+)")
 SEASONS_DIR_PATTERN = re.compile (r"[sS][eE][aA][sS][oO][nN]\s+(?P<season>\d+)")
-ABSOLUTE_NUMBER_PATTERN = re.compile (r"[\W_E](?P<episode>\d+)[\W_v]")
+ABSOLUTE_NUMBER_PATTERN = re.compile (r"([\W_E]|^)(?P<episode>\d+)[\W_v]")
 
 _content_dirs = []
 _nfo_stats = {
@@ -33,13 +39,36 @@ _nfo_stats = {
     "thumbs": 0,
 }
 
+
+def setup_argparse ():
+    desc = """
+    Generate metadata content (NFOs, TBNs) from media files, to be used by media players such
+    as the Boxee Box.
+    """
+    global ROOT_MEDIA_DIR, TVDB_API_FILE, TVDB_API_KEY, VERBOSE_MODE, OVERWRITE_MODE
+    parser = argparse.ArgumentParser(description=desc)
+    parser.add_argument ("-o", "--overwrite", nargs="?", type=bool, const=True, default=False)
+    parser.add_argument ("-v", "--verbose", nargs="?", type=bool, const=True, default=False)
+    parser.add_argument ("-r", "--root", default=ROOT_MEDIA_DIR)
+    parser.add_argument ("-f", "--tvdb-key-file", default=TVDB_API_FILE)
+    parser.add_argument ("-k", "--tvdb-key", default=TVDB_API_KEY)
+    args = parser.parse_args ()
+    OVERWRITE_MODE = args.overwrite
+    VERBOSE_MODE = args.verbose
+    ROOT_MEDIA_DIR = args.root
+    TVDB_API_FILE = args.tvdb_key_file
+    TVDB_API_KEY = args.tvdb_key
+
 def load_api_key ():
     global TVDB_API_KEY
     if not TVDB_API_KEY:
-        with codecs.open (TVDB_API_FILE, "r", "utf-8") as key_file:
-            TVDB_API_KEY = key_file.readline ().strip ()
+        try:
+            with codecs.open (TVDB_API_FILE, "r", "utf-8") as key_file:
+                TVDB_API_KEY = key_file.readline ().strip ()
+        except:
+            pass
     if not TVDB_API_KEY:
-        print "[E] Unable to load the API KEY."
+        print "[E] Unable to load the API KEY at [%s]." % TVDB_API_FILE
         sys.exit (1)
     if VERBOSE_MODE:
         print "[*] Loaded API Key [%s]" % TVDB_API_KEY
@@ -242,14 +271,14 @@ def fetch_data (control_data, root, files, overwrite=False):
                                     element.findtext ("EpisodeNumber"))
                     if (int (element.findtext ("SeasonNumber")) == file ["season"] and \
                         int (element.findtext ("EpisodeNumber")) == file ["episode"]) or \
-                       (episode_id and element.findtext ("id") == episode_id):
+                       (EPISode_id and element.findtext ("id") == episode_id):
                         episode_details = element
                         break
-                
+
                 if episode_details is None:
                     print "[!] No details were found for [%s]" % file ["path"]
                     continue # No details were found, so go to the next file
-                    
+
                 episode_data = {
                     "show": tvshow_details.findtext ("Series/SeriesName"),
                     "title": episode_details.findtext ("EpisodeName"),
@@ -260,7 +289,7 @@ def fetch_data (control_data, root, files, overwrite=False):
                     "runtime": tvshow_details.findtext ("Series/Runtime"),
                     "aired": episode_details.findtext ("FirstAired"),
                 }
-                
+
                 print "[*] Generating NFO file for [%s] - S%sE%s" % (episode_data ["show"], 
                                                                   episode_data ["season"].zfill (2),
                                                                   episode_data ["episode"].zfill(2))
@@ -279,7 +308,7 @@ def fetch_data (control_data, root, files, overwrite=False):
                                  encoding="utf-8",
                                  xml_declaration=True) # This only appeared with py 2.7
                 _nfo_stats ["episodes"] += 1
-                
+
         # Fetch Episode thumbnail
         if overwrite or not os.path.exists (u"%s.tbn" % os.path.splitext (file["path"])[0]):
             # fetch and write tvshow.nfo
@@ -320,25 +349,24 @@ def dl_thumb (url, filepath):
         with open (filepath, "wb") as img_file:
             img_file.write (content.read ())
     except urllib2.HTTPError as herror:
-        print "[E] Unable to open %s: %s (HTTP %s)." % (url, herror.msg, herror.code)
+        PRINT "[E] Unable to open %s: %s (HTTP %s)." % (url, herror.msg, herror.code)
     except urllib2.URLError as uerror:
         print "[E] Unable to open %s: %s." % (url, uerror.reason)
     except IOError as ierror:
         print "[E] Unable to write to %s: %s." % (ierror.filename, ierror.strerror)
-        
+
 def show_stats ():
     print "[*] Wrote [%s] tvshow.nfo and [%s] episode .nfo" % (_nfo_stats["shows"], _nfo_stats["episodes"])
     print "[*] Fetched [%s] covers and [%s] episode thumbs" % (_nfo_stats["covers"], _nfo_stats["thumbs"])
-                    
+
 def generate_metadata ():
     for item in _content_dirs:
         control = parse_control_file (os.path.join (item, CONTROL_FILE))
         files = find_media_files (item)
-        fetch_data (control, item, files, overwrite=False)
-    # it may be useful to call os.fsync () at that point
-        
+        fetch_data (control, item, files, overwrite=OVERWRITE_MODE)
+
 def main ():
-    print
+    setup_argparse ()
     load_api_key ()
     check_service_status ()
     find_content_dirs ()
@@ -348,4 +376,7 @@ def main ():
         os.system ("pause")
 
 if __name__ == "__main__":
-    main ()
+    try:
+        main ()
+    except KeyboardInterrupt:
+        pass
