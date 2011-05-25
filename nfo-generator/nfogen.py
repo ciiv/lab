@@ -176,19 +176,19 @@ def fetch_data (control_data, root, files, overwrite=False):
     # 5. Use <language>.xml from step 3 to find and store the data associated with your episode.
     # 6. Use <filename> from results in step 5a to download the episode image from <mirrorpath_banners>/banners/<filename>.
     # Update tvshow.nfo only on overwrite mode or if it doesn't exists already
-    
+
     tvshow_details = None
     banners_details = None
     global _nfo_stats
-    
+
     show_details_url = "http://www.thetvdb.com/api/%s/series/%s/all/en.xml" % (TVDB_API_KEY, control_data.get ("tvdbid"))
     show_banners_url_prefix = "http://www.thetvdb.com/banners/"
-    
+
     # Return now if no TVDB ID was found in the control file
     if not control_data.get ("tvdbid"):
         print "[E] No tvdbid was found in [%s]" % root
         return
-        
+
     def indent_xml (elem,  level=0):
         i = "\n" + level * "  "
         if len (elem):
@@ -203,7 +203,7 @@ def fetch_data (control_data, root, files, overwrite=False):
         else:
             if level and (not elem.tail or not elem.tail.strip()):
                 elem.tail =  i
-    
+
     def get_xml_content (url):
         try:
             content = ET.ElementTree ()
@@ -217,15 +217,15 @@ def fetch_data (control_data, root, files, overwrite=False):
             print "[E] Unable to open %s: %s." % (url, uerror.reason)
             content = None
         return content
-    
+
     # Fetch TV show information
     if overwrite or not os.path.exists (os.path.join (root, "tvshow.nfo")):
         # fetch data
         tvshow_details = get_xml_content (show_details_url)
-        
+
         if tvshow_details is None:
             return  # don't waste time
-        
+
         show_data = { 
             "id": tvshow_details.findtext ("Series/id"),
             "title": control_data.get ("title", tvshow_details.findtext ("Series/SeriesName")),
@@ -245,13 +245,13 @@ def fetch_data (control_data, root, files, overwrite=False):
                          encoding="utf-8",
                          xml_declaration=True) # This only appeared with py 2.7
         _nfo_stats ["shows"] += 1
-            
+
     # Fetch TV show cover art
     if overwrite or not os.path.exists (os.path.join (root, u"folder.jpg")):
         # fetch and write folder.jpg
         if tvshow_details is None:
             tvshow_details = get_xml_content (show_details_url)
-        
+
         if tvshow_details:
             cover_filename = tvshow_details.findtext ("Series/poster")
             if cover_filename:
@@ -269,7 +269,7 @@ def fetch_data (control_data, root, files, overwrite=False):
             # fetch and write tvshow.nfo
             if tvshow_details is None:
                 tvshow_details = get_xml_content (show_details_url)
-            
+
             if tvshow_details:
                 for element in tvshow_details.getiterator ("Episode"):
                     if VERBOSE_MODE:
@@ -301,6 +301,16 @@ def fetch_data (control_data, root, files, overwrite=False):
                     "aired": episode_details.findtext ("FirstAired"),
                 }
 
+                # Rename file if requested in the control file
+                if control_data.get ("rename"):
+                    new_filename = "%s - S%sE%s - %s%s" % (episode_data["show"],
+                                                            episode_data ["season"].zfill (2),
+                                                            episode_data ["episode"].zfill(2),
+                                                            episode_data ["title"],
+                                                            os.path.splitext (file ["path"])[1])
+                    new_filename = os.path.join (os.path.dirname(file["path"]), new_filename)
+                    file ["path"] = rename (file["path"], new_filename)
+
                 print "[*] Generating NFO file for [%s] - S%sE%s" % (episode_data ["show"], 
                                                                   episode_data ["season"].zfill (2),
                                                                   episode_data ["episode"].zfill(2))
@@ -325,7 +335,7 @@ def fetch_data (control_data, root, files, overwrite=False):
             # fetch and write tvshow.nfo
             if tvshow_details is None:
                 tvshow_details = get_xml_content (show_details_url)
-            
+
             if tvshow_details:
                 # try to reuse previous lookup before doing it again
                 if episode_details is None:
@@ -334,24 +344,28 @@ def fetch_data (control_data, root, files, overwrite=False):
                            int (element.findtext ("EpisodeNumber")) == file ["episode"]:
                             episode_details = element
                             break
-                
+
                 if episode_details is None: 
                     print "[!] No details were found for [%s]" % file ["path"]
                     continue # No details were found, so go to the next file
-                    
+
                 thumb_filename = episode_details.findtext ("filename")
                 if thumb_filename:
                     dl_thumb ("%s%s" % (show_banners_url_prefix, thumb_filename),
                                 u"%s.tbn" % os.path.splitext (file["path"])[0])
                     _nfo_stats ["thumbs"] += 1
 
-def write_metatada (content, filepath):
+def rename (source, target):
     try:
-        with codecs.open (filepath, "w", "utf-8") as nfo_file:
-            nfo_file.write (content)
+        os.rename (source, target)
+        print "[*] Renamed [%s] as [%s]" % (os.path.split (source)[1],
+                                            os.path.split (target)[1])
+        return target
     except:
-        print "[!] An error occured while writing to %s" % filepath
-            
+        print "[!] There was an error renaming [%s] to [%s]!" % (os.path.split (source)[1],
+                                                                os.path.split (target)[1])
+        return source
+
 def dl_thumb (url, filepath):
     try:
         if VERBOSE_MODE:

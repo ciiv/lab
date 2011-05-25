@@ -66,13 +66,23 @@ In this control file, you can optionaly preset some attributes that will prevail
     genre: US TV Show
     title: Bones (US)
 
-Important: This file should be UTF-8 encoded with UNIX lines endings (LF).
+*Important: This file should be UTF-8 encoded with UNIX lines endings (LF).*
 
 In some circumstances it may be required to specify the method used for
-episodes numbering.
-For example, consider this file: `MyTVShow.301.mkv`
+episodes numbering.    
+For example, consider the file `MyTVShow.301.mkv`:
 
  - By default, the script will parse this as MyTVShow, Season 03, Episode 01
  - If you'd like to parse it as MyTVShow, Season 01, Episode 301, you will have to specify:
 `numbering: absolute` in your control file.
 
+File Renaming
+=============
+
+You can massively rename files by putting `rename: yes` in your control file.    
+Files will then be renamed folowing this model:
+
+    My Show - S01E06 - Episode Title.avi
+
+For renaming to work, an episodes shouldn't already have a corresponding .nfo file. If that's
+the case, the file won't be renamed.
