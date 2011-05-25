@@ -60,10 +60,19 @@ For example, for TV Shows "Bones", it would look like this:
 
     tvdbid: 75682
 
-You can optionaly preset some attributes, that will prevails in all cases:
+In this control file, you can optionaly preset some attributes that will prevails in all cases:
 
     tvdbid: 75682
     genre: US TV Show
     title: Bones (US)
 
-Note: This file should be UTF-8 encoded with UNIX lines endings (LF).
+Important: This file should be UTF-8 encoded with UNIX lines endings (LF).
+
+In some circumstances it may be required to specify the method used for
+episodes numbering.
+For example, consider this file: `MyTVShow.301.mkv`
+
+ - By default, the script will parse this as MyTVShow, Season 03, Episode 01
+ - If you'd like to parse it as MyTVShow, Season 01, Episode 301, you will have to specify:
+`numbering: absolute` in your control file.
+

@@ -112,12 +112,12 @@ def parse_control_file (filepath):
         with codecs.open (filepath, "r", "utf-8") as control_file:
             for line in control_file:
                 key, value = line.split (": ", 1)
-                control_opts [key.strip ()] = value.strip ()
+                control_opts [key.lower ().strip ()] = value.strip ()
     except:
         print "[!] Failed to parse %s" % filepath
     return control_opts
-    
-def find_media_files (base_dir):
+
+def find_media_files (base_dir, numbering):
     # find and then identify media files
     # Walk through the folders tree
     media_files = []
@@ -136,13 +136,21 @@ def find_media_files (base_dir):
                 # Now try to get the episode number from the filename (using S0XE0X format)
                 if EPISODES_PATTERN.search (file):
                     result = EPISODES_PATTERN.search (file)
-                    if not season: # Get the season too is it wasn't found before
+                    if season is None: # Get the season too is it wasn't found before
                         season = int (result.group ("season"))
                     episode = int (result.group ("episode"))
 
                 # Finally try to get the episode number from the filename (using Absolute numbering format)
                 if not episode and ABSOLUTE_NUMBER_PATTERN.search (file):
-                    episode = int (ABSOLUTE_NUMBER_PATTERN.search (file).group ("episode"))
+                    epn = ABSOLUTE_NUMBER_PATTERN.search (file).group ("episode")
+                    if (numbering == "absolute") or (len (epn) != 3):
+                        # parse 301 like season 01, episode 301
+                        episode = int (epn)
+                    else:
+                        # parse 301 like season 03, episode 01
+                        episode = int (epn [1:])
+                        if season is None:
+                            season = int (epn [0])
 
                 if season is None:
                     season = 1
@@ -362,7 +370,7 @@ def show_stats ():
 def generate_metadata ():
     for item in _content_dirs:
         control = parse_control_file (os.path.join (item, CONTROL_FILE))
-        files = find_media_files (item)
+        files = find_media_files (item, control.get ("numbering", "season"))
         fetch_data (control, item, files, overwrite=OVERWRITE_MODE)
 
 def main ():
