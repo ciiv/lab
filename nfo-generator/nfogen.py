@@ -21,7 +21,7 @@ import xml.etree.ElementTree as ET
 
 TVDB_API_KEY = ""
 TVDB_API_FILE = r"/volume1/tools/tvdb.key"
-ROOT_MEDIA_DIR = r"/volume1/incoming"
+ROOT_MEDIA_DIR = r""
 CONTROL_FILE = ".control.conf"
 VERBOSE_MODE = False
 OVERWRITE_MODE = False
@@ -47,9 +47,9 @@ def setup_argparse ():
     """
     global ROOT_MEDIA_DIR, TVDB_API_FILE, TVDB_API_KEY, VERBOSE_MODE, OVERWRITE_MODE
     parser = argparse.ArgumentParser(description=desc)
+    parser.add_argument ("root", help="target media folder")
     parser.add_argument ("-o", "--overwrite", nargs="?", type=bool, const=True, default=False)
     parser.add_argument ("-v", "--verbose", nargs="?", type=bool, const=True, default=False)
-    parser.add_argument ("-r", "--root", default=ROOT_MEDIA_DIR)
     parser.add_argument ("-f", "--tvdb-key-file", default=TVDB_API_FILE)
     parser.add_argument ("-k", "--tvdb-key", default=TVDB_API_KEY)
     args = parser.parse_args ()

@@ -17,24 +17,28 @@ This script was designed to handle US/UK TV Shows, Japanese Animes and Asian Dra
 How to use
 ===========
 
-    usage: nfogen.py [-h] [-o] [-v] [-r ROOT]
-                     [-f TVDB_KEY_FILE] [-k TVDB_KEY]
+
+    usage: nfogen.py [-h] [-o [OVERWRITE]] [-v [VERBOSE]] [-f TVDB_KEY_FILE]
+                     [-k TVDB_KEY]
+                     root
 
     Generate metadata content (NFOs, TBNs) from media files, to be used by media
     players such as the Boxee Box.
 
+    positional arguments:
+      root                  target media folder
+
     optional arguments:
-      -h, --help            show this help message and exit
-      -o, --overwrite
-      -v, --verbose
-      -r ROOT, --root ROOT
-      -f TVDB_KEY_FILE, --tvdb-key-file TVDB_KEY_FILE
-      -k TVDB_KEY, --tvdb-key TVDB_KEY
+        -h, --help            show this help message and exit
+        -o [OVERWRITE], --overwrite [OVERWRITE]
+        -v [VERBOSE], --verbose [VERBOSE]
+        -f TVDB_KEY_FILE, --tvdb-key-file TVDB_KEY_FILE
+        -k TVDB_KEY, --tvdb-key TVDB_KEY
 
 
 Here is an example showing basic usage:
 
-    ./nfogen.py -k "070010A2303" -r /root/media/folder
+    ./nfogen.py -k "070010A2303" /root/media/folder
 
 This is going to generate metadata for everything located below /root/media/folder
 and will use TVDB API key "070010A2303".
