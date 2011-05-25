@@ -27,7 +27,8 @@ VERBOSE_MODE = False
 OVERWRITE_MODE = False
 
 MEDIA_FILE_EXT = [".avi", ".mkv", ".mov", ".mp4", ".wbem", ".ogm",]
-EPISODES_PATTERN = re.compile (r"[sS](?P<season>\d+)[eE](?P<episode>\d+)")
+EPISODES_PATTERN = [re.compile (r"[sS](?P<season>\d+)[eE](?P<episode>\d+)"),
+                    re.compile (r"(?P<season>\d+)[xX](?P<episode>\d+)")]
 SEASONS_DIR_PATTERN = re.compile (r"[sS][eE][aA][sS][oO][nN]\s+(?P<season>\d+)")
 ABSOLUTE_NUMBER_PATTERN = re.compile (r"([\W_E]|^)(?P<episode>\d+)[\W_v]")
 
@@ -133,12 +134,14 @@ def find_media_files (base_dir, numbering):
                 elif re.search ("[sS][pP][eE][cC][iI][aA][lL]", (os.path.basename (root))):
                     season = 0
 
-                # Now try to get the episode number from the filename (using S0XE0X format)
-                if EPISODES_PATTERN.search (file):
-                    result = EPISODES_PATTERN.search (file)
-                    if season is None: # Get the season too is it wasn't found before
-                        season = int (result.group ("season"))
-                    episode = int (result.group ("episode"))
+                # Now try to get the episode number from the filename (using S0#E0# format or 0#x0#)
+                for pattern in EPISODES_PATTERN:
+                    if pattern.search (file):
+                        result = pattern.search (file)
+                        if season is None: # Get the season too is it wasn't found before
+                            season = int (result.group ("season"))
+                        episode = int (result.group ("episode"))
+                        break
 
                 # Finally try to get the episode number from the filename (using Absolute numbering format)
                 if not episode and ABSOLUTE_NUMBER_PATTERN.search (file):
