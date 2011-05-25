@@ -84,5 +84,6 @@ Files will then be renamed folowing this model:
 
     My Show - S01E06 - Episode Title.avi
 
-For renaming to work, an episodes shouldn't already have a corresponding .nfo file. If that's
-the case, the file won't be renamed.
+For renaming to work, an episode shouldn't already have a corresponding .nfo file. If that's
+the case, the file won't be renamed.    
+Also, if season/episode number cannot be established for an episode, it won't be renamed.
