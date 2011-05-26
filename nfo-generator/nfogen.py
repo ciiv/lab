@@ -19,8 +19,7 @@ import argparse
 import urllib, urllib2
 import xml.etree.ElementTree as ET
 
-TVDB_API_KEY = ""
-TVDB_API_FILE = r"/volume1/tools/tvdb.key"
+TVDB_API_KEY = os.path.expanduser ("~/.tvdbid")
 ROOT_MEDIA_DIR = r""
 CONTROL_FILE = ".control.conf"
 VERBOSE_MODE = False
@@ -46,30 +45,29 @@ def setup_argparse ():
     Generate metadata content (NFOs, TBNs) from media files, to be used by media players such
     as the Boxee Box.
     """
-    global ROOT_MEDIA_DIR, TVDB_API_FILE, TVDB_API_KEY, VERBOSE_MODE, OVERWRITE_MODE
+    global ROOT_MEDIA_DIR, TVDB_API_KEY, VERBOSE_MODE, OVERWRITE_MODE
     parser = argparse.ArgumentParser(description=desc)
     parser.add_argument ("root", help="target media folder")
     parser.add_argument ("-o", "--overwrite", nargs="?", type=bool, const=True, default=False)
     parser.add_argument ("-v", "--verbose", nargs="?", type=bool, const=True, default=False)
-    parser.add_argument ("-f", "--tvdb-key-file", default=TVDB_API_FILE)
     parser.add_argument ("-k", "--tvdb-key", default=TVDB_API_KEY)
     args = parser.parse_args ()
     OVERWRITE_MODE = args.overwrite
     VERBOSE_MODE = args.verbose
     ROOT_MEDIA_DIR = args.root
-    TVDB_API_FILE = args.tvdb_key_file
     TVDB_API_KEY = args.tvdb_key
 
 def load_api_key ():
     global TVDB_API_KEY
-    if not TVDB_API_KEY:
+    if os.path.isfile (TVDB_API_KEY):
         try:
-            with codecs.open (TVDB_API_FILE, "r", "utf-8") as key_file:
+            with codecs.open (TVDB_API_KEY, "r", "utf-8") as key_file:
                 TVDB_API_KEY = key_file.readline ().strip ()
         except:
+            TVDB_API_KEY = None
             pass
-    if not TVDB_API_KEY:
-        print "[E] Unable to load the API KEY at [%s]." % TVDB_API_FILE
+    if not TVDB_API_KEY or TVDB_API_KEY.find ("/") >= 0:
+        print "[E] Unable to load the API KEY [%s]." % TVDB_API_KEY
         sys.exit (1)
     if VERBOSE_MODE:
         print "[*] Loaded API Key [%s]" % TVDB_API_KEY

@@ -18,9 +18,7 @@ How to use
 ===========
 
 
-    usage: nfogen.py [-h] [-o [OVERWRITE]] [-v [VERBOSE]] [-f TVDB_KEY_FILE]
-                     [-k TVDB_KEY]
-                     root
+    usage: nfogen.py [-h] [-o [OVERWRITE]] [-v [VERBOSE]] [-k TVDB_KEY] root
 
     Generate metadata content (NFOs, TBNs) from media files, to be used by media
     players such as the Boxee Box.
@@ -32,7 +30,6 @@ How to use
         -h, --help            show this help message and exit
         -o [OVERWRITE], --overwrite [OVERWRITE]
         -v [VERBOSE], --verbose [VERBOSE]
-        -f TVDB_KEY_FILE, --tvdb-key-file TVDB_KEY_FILE
         -k TVDB_KEY, --tvdb-key TVDB_KEY
 
 
@@ -40,16 +37,18 @@ Here is an example showing basic usage:
 
     ./nfogen.py -k "070010A2303" /root/media/folder
 
-This is going to generate metadata for everything located below /root/media/folder
-and will use TVDB API key "070010A2303".
-You can also put the API Key in a text file and specify that file using the command-line
-argument `-f`.
+This is going to generate metadata for everything located below `/root/media/folder`
+and will use TVDB API key `070010A2303`.
+You can also put the API Key in a text file and save it as `~/.tvdbid` and it will be
+loaded automatically.
+You can also save that file elsewhere and specify the location at the command line using
+the same command-line argument `-k`.
 
 Note:
 
  * You can request an TVDB API Key from there: [thetvdb.com](http://www.thetvdb.com/?tab=apiregister)
  * Make sure Python 2.7 is installed and run the script
- * You will have to create a .control.conf file at the root level of every folder
+ * You will have to create a `.control.conf` file at the root level of every folder
    containing a tv show (See syntax below)
 
 Syntax of .control.conf file
