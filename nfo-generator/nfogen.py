@@ -54,8 +54,11 @@ def setup_argparse ():
     args = parser.parse_args ()
     OVERWRITE_MODE = args.overwrite
     VERBOSE_MODE = args.verbose
-    ROOT_MEDIA_DIR = args.root
     TVDB_API_KEY = args.tvdb_key
+    if os.path.isfile (args.root):
+        ROOT_MEDIA_DIR = os.path.dirname (args.root)
+    else:
+        ROOT_MEDIA_DIR = args.root
 
 def load_api_key ():
     global TVDB_API_KEY
