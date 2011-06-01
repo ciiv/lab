@@ -382,8 +382,10 @@ def dl_thumb (url, filepath):
         print "[E] Unable to write to %s: %s." % (ierror.filename, ierror.strerror)
 
 def show_stats ():
-    print "[*] Wrote [%s] tvshow.nfo and [%s] episode .nfo" % (_nfo_stats["shows"], _nfo_stats["episodes"])
-    print "[*] Fetched [%s] covers and [%s] episode thumbs" % (_nfo_stats["covers"], _nfo_stats["thumbs"])
+    print "[*] [%s] tvshow.nfo, [%s] episode .nfo, [%s] covers, [%s] episode thumbs" % (_nfo_stats["shows"],
+                                                                                        _nfo_stats["episodes"],
+                                                                                        _nfo_stats["covers"],
+                                                                                        _nfo_stats["thumbs"])
 
 def generate_metadata ():
     for item in _content_dirs:
@@ -398,8 +400,6 @@ def main ():
     find_content_dirs ()
     generate_metadata ()
     show_stats ()
-    if sys.platform == "win32":
-        os.system ("pause")
 
 if __name__ == "__main__":
     try:
