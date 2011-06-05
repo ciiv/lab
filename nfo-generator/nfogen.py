@@ -18,6 +18,8 @@ import codecs
 import argparse
 import urllib, urllib2
 import xml.etree.ElementTree as ET
+import string, unicodedata
+
 
 TVDB_API_KEY = os.path.expanduser ("~/.tvdbid")
 ROOT_MEDIA_DIR = r""
@@ -31,6 +33,8 @@ EPISODES_PATTERN = [re.compile (r"[sS](?P<season>\d+)[eE](?P<episode>\d+)"),
 SEASONS_DIR_PATTERN = re.compile (r"[sS][eE][aA][sS][oO][nN]\s+(?P<season>\d+)")
 ABSOLUTE_NUMBER_PATTERN = re.compile (r"([\W_E]|^)(?P<episode>\d+)[\W_v]")
 
+validFilenameChars = "-_.() %s%s" % (string.ascii_letters, string.digits)
+
 _content_dirs = []
 _nfo_stats = {
     "shows": 0,
@@ -38,6 +42,11 @@ _nfo_stats = {
     "covers": 0,
     "thumbs": 0,
 }
+
+
+def removeDisallowedFilenameChars(filename):
+    cleanedFilename = unicodedata.normalize('NFKD', filename).encode('ASCII', 'ignore')
+    return ''.join(c for c in cleanedFilename if c in validFilenameChars)
 
 
 def setup_argparse ():
@@ -181,7 +190,8 @@ def fetch_data (control_data, root, files, overwrite=False):
     tvshow_details = None
     banners_details = None
     global _nfo_stats
-
+    numbering = control_data.get ("numbering","all")
+ 
     show_details_url = "http://www.thetvdb.com/api/%s/series/%s/all/en.xml" % (TVDB_API_KEY, control_data.get ("tvdbid"))
     show_banners_url_prefix = "http://www.thetvdb.com/banners/"
 
@@ -274,16 +284,19 @@ def fetch_data (control_data, root, files, overwrite=False):
             if tvshow_details:
                 for element in tvshow_details.getiterator ("Episode"):
                     if VERBOSE_MODE:
-                        print "Target: [S%sE%sID%s], Got: [%s - S%sE%s]" % \
+                        print "Target: [S%sE%sID%s], Got: [%s - S%sE%s] (absolute id: %s)" % \
                                     (file ["season"],
                                     file ["episode"],
                                     episode_id,
                                     element.findtext ("EpisodeName"),
                                     element.findtext ("SeasonNumber"),
-                                    element.findtext ("EpisodeNumber"))
+                                    element.findtext ("EpisodeNumber"),
+                                    element.findtext ("absolute_number"))
                     if (int (element.findtext ("SeasonNumber")) == file ["season"] and \
                         int (element.findtext ("EpisodeNumber")) == file ["episode"]) or \
-                       (episode_id and element.findtext ("id") == episode_id):
+                       (episode_id and element.findtext ("id") == episode_id) or \
+                       (numbering == "absolute" and element.findtext ("absolute_number") and \
+                        int (element.findtext ("absolute_number")) == file ["episode"]):
                         episode_details = element
                         break
 
@@ -304,12 +317,12 @@ def fetch_data (control_data, root, files, overwrite=False):
 
                 # Rename file if requested in the control file
                 if control_data.get ("rename"):
-                    new_filename = "%s - S%sE%s - %s%s" % (episode_data["show"],
+                    new_filename = u"%s - S%sE%s - %s%s" % (episode_data["show"],
                                                             episode_data ["season"].zfill (2),
                                                             episode_data ["episode"].zfill(2),
                                                             episode_data ["title"],
                                                             os.path.splitext (file ["path"])[1])
-                    new_filename = os.path.join (os.path.dirname(file["path"]), new_filename)
+                    new_filename = os.path.join (os.path.dirname(file["path"]), removeDisallowedFilenameChars(u"%s" % new_filename))
                     file ["path"] = rename (file["path"], new_filename)
 
                 print "[*] Generating NFO file for [%s] - S%sE%s" % (episode_data ["show"], 
