@@ -283,20 +283,21 @@ def fetch_data (control_data, root, files, overwrite=False):
 
             if tvshow_details:
                 for element in tvshow_details.getiterator ("Episode"):
+                    absolute_number = element.findtext ("absolute_number") 
                     if VERBOSE_MODE:
                         print "Target: [S%sE%sID%s], Got: [%s - S%sE%s] (absolute id: %s)" % \
                                     (file ["season"],
                                     file ["episode"],
                                     episode_id,
-                                    element.findtext ("EpisodeName"),
+                                    element.findtext ("EpisodeName").encode('ASCII', 'ignore'),
                                     element.findtext ("SeasonNumber"),
                                     element.findtext ("EpisodeNumber"),
-                                    element.findtext ("absolute_number"))
+                                    absolute_number)
                     if (int (element.findtext ("SeasonNumber")) == file ["season"] and \
                         int (element.findtext ("EpisodeNumber")) == file ["episode"]) or \
                        (episode_id and element.findtext ("id") == episode_id) or \
-                       (numbering == "absolute" and element.findtext ("absolute_number") and \
-                        int (element.findtext ("absolute_number")) == file ["episode"]):
+                       (numbering == "absolute" and absolute_number and \
+                        int (absolute_number) == file ["episode"]):
                         episode_details = element
                         break
 
