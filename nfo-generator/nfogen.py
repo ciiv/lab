@@ -29,7 +29,7 @@ OVERWRITE_MODE = False
 
 MEDIA_FILE_EXT = [".avi", ".mkv", ".mov", ".mp4", ".wbem", ".ogm",]
 EPISODES_PATTERN = [re.compile (r"[sS](?P<season>\d+)[eE](?P<episode>\d+)"),
-                    re.compile (r"(?P<season>\d+)[xX](?P<episode>\d+)")]
+                    re.compile (r"([\W_]|^)(?P<season>\d{,2})[xX](?P<episode>\d+)")]
 SEASONS_DIR_PATTERN = re.compile (r"[sS][eE][aA][sS][oO][nN]\s+(?P<season>\d+)")
 ABSOLUTE_NUMBER_PATTERN = re.compile (r"([\W_E]|^)(?P<episode>\d+)[\W_v]")
 
@@ -285,7 +285,7 @@ def fetch_data (control_data, root, files, overwrite=False):
                 for element in tvshow_details.getiterator ("Episode"):
                     absolute_number = element.findtext ("absolute_number") 
                     if VERBOSE_MODE:
-                        print "Target: [S%sE%sID%s], Got: [%s - S%sE%s] (absolute id: %s)" % \
+                        print "Target: [S%s:E%s:TVDBID%s], Got: [%s - S%s:E%s:N%s]" % \
                                     (file ["season"],
                                     file ["episode"],
                                     episode_id,
