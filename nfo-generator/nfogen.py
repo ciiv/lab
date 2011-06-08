@@ -316,19 +316,26 @@ def fetch_data (control_data, root, files, overwrite=False):
                     "aired": episode_details.findtext ("FirstAired"),
                 }
 
+                # Take absolute numbering in consideration
+                if numbering == "absolute":
+                    ep_number = episode_data ["episode"].zfill (2)
+                else:
+                    ep_number = "S%sE%s" % (episode_data ["season"].zfill (2),
+                                            episode_data ["episode"].zfill (2))
+
                 # Rename file if requested in the control file
                 if control_data.get ("rename"):
-                    new_filename = u"%s - S%sE%s - %s%s" % (episode_data["show"],
-                                                            episode_data ["season"].zfill (2),
-                                                            episode_data ["episode"].zfill(2),
+                    new_filename = u"%s - %s - %s%s" % (episode_data["show"],
+                                                            ep_number,
                                                             episode_data ["title"],
                                                             os.path.splitext (file ["path"])[1])
-                    new_filename = os.path.join (os.path.dirname(file["path"]), removeDisallowedFilenameChars(u"%s" % new_filename))
+                    new_filename = os.path.join (os.path.dirname (file["path"]),
+                                                 removeDisallowedFilenameChars (u"%s" % new_filename))
                     file ["path"] = rename (file["path"], new_filename)
 
-                print "[*] Generating NFO file for [%s] - S%sE%s" % (episode_data ["show"], 
-                                                                  episode_data ["season"].zfill (2),
-                                                                  episode_data ["episode"].zfill(2))
+                print "[*] Generating NFO file for [%s] - %s" % (episode_data ["show"],
+                                                                  ep_number)
+
                 # Create xml tree for tvshow.nfo
                 xml_episode = ET.Element ("episodedetails")
                 ET.SubElement (xml_episode, "title").text = episode_data ["title"]
