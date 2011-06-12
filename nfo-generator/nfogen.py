@@ -104,6 +104,8 @@ def find_content_dirs ():
                 break # Stop if a control file was found
             if ROOT_MEDIA_DIR == "/": #FIXME: this will only work on UNIX systems
                 break # Stop if / has been reached
+        if len (_content_dirs):
+            print "[*] Generating content for [%s]" % _content_dirs [0]
     else:
         # Walk top-down, looking for control files
         print "[*] Scanning directories looking for [%s] files" % CONTROL_FILE
@@ -113,9 +115,9 @@ def find_content_dirs ():
             if CONTROL_FILE in files:
                 _content_dirs.append (root)
                 del dirs[:] # prevent from visiting any subdirectories
-    print "[*] Found [%i] relevant folders in %s" % (len (_content_dirs), ROOT_MEDIA_DIR)
-    for item in _content_dirs:
-        print "[+]  ~> %s" % item
+        print "[*] Found [%i] relevant folder(s) in %s" % (len (_content_dirs), ROOT_MEDIA_DIR)
+        for item in _content_dirs:
+            print "[+]  ~> %s" % item
 
 def parse_control_file (filepath):
     control_opts = {}
@@ -396,7 +398,7 @@ def dl_thumb (url, filepath):
         print "[E] Unable to write to %s: %s." % (ierror.filename, ierror.strerror)
 
 def show_stats ():
-    print "[*] [%s] tvshow.nfo, [%s] episode .nfo, [%s] covers, [%s] episode thumbs" % (_nfo_stats["shows"],
+    print "[*] [%s] Show(s) .NFO, [%s] Episode(s) .NFO, [%s] cover(s), [%s] episode thumb(s)" % (_nfo_stats["shows"],
                                                                                         _nfo_stats["episodes"],
                                                                                         _nfo_stats["covers"],
                                                                                         _nfo_stats["thumbs"])
