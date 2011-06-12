@@ -59,10 +59,7 @@ def setup_argparse ():
     OVERWRITE_MODE = args.overwrite
     VERBOSE_MODE = args.verbose
     TVDB_API_KEY = args.tvdb_key
-    if os.path.isfile (args.root):
-        ROOT_MEDIA_DIR = os.path.dirname (args.root)
-    else:
-        ROOT_MEDIA_DIR = args.root
+    ROOT_MEDIA_DIR = args.root
 
 def load_api_key ():
     global TVDB_API_KEY
@@ -96,13 +93,26 @@ def check_service_status ():
     sys.exit (1)
 
 def find_content_dirs ():
-    print "[*] Scanning directories looking for [%s] files" % CONTROL_FILE
-    # Walk through the folders tree
-    for root, dirs, files in os.walk (ROOT_MEDIA_DIR):
-        # Look for control files
-        if CONTROL_FILE in files:
-            _content_dirs.append (root)
-            del dirs[:] # prevent from visiting any subdirectories
+    global ROOT_MEDIA_DIR
+    if os.path.isfile (ROOT_MEDIA_DIR):
+        # Walk bottom-up, searching for a control file
+        print "[*] Walking bottom-up, searching for a [%s] file" % CONTROL_FILE
+        while True:
+            ROOT_MEDIA_DIR = os.path.dirname (ROOT_MEDIA_DIR)
+            if os.path.isfile (os.path.join (ROOT_MEDIA_DIR, CONTROL_FILE)):
+                _content_dirs.append (ROOT_MEDIA_DIR)
+                break # Stop if a control file was found
+            if ROOT_MEDIA_DIR == "/": #FIXME: this will only work on UNIX systems
+                break # Stop if / has been reached
+    else:
+        # Walk top-down, looking for control files
+        print "[*] Scanning directories looking for [%s] files" % CONTROL_FILE
+        # Walk through the folders tree
+        for root, dirs, files in os.walk (ROOT_MEDIA_DIR):
+            # Look for control files
+            if CONTROL_FILE in files:
+                _content_dirs.append (root)
+                del dirs[:] # prevent from visiting any subdirectories
     print "[*] Found [%i] relevant folders in %s" % (len (_content_dirs), ROOT_MEDIA_DIR)
     for item in _content_dirs:
         print "[+]  ~> %s" % item
