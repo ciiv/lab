@@ -9,9 +9,6 @@ if sys.version_info < (2, 7):
     print "[E] Python 2.7 is required!"
     sys.exit (1)
 
-# TODO
-# - flexible logging
-
 import os
 import re
 import codecs
@@ -43,11 +40,9 @@ _nfo_stats = {
     "thumbs": 0,
 }
 
-
 def removeDisallowedFilenameChars(filename):
     cleanedFilename = unicodedata.normalize('NFKD', filename).encode('ASCII', 'ignore')
     return ''.join(c for c in cleanedFilename if c in validFilenameChars)
-
 
 def setup_argparse ():
     desc = """
@@ -77,7 +72,6 @@ def load_api_key ():
                 TVDB_API_KEY = key_file.readline ().strip ()
         except:
             TVDB_API_KEY = None
-            pass
     if not TVDB_API_KEY or TVDB_API_KEY.find ("/") >= 0:
         print "[E] Unable to load the API KEY [%s]." % TVDB_API_KEY
         sys.exit (1)
@@ -100,10 +94,6 @@ def check_service_status ():
     print "[E] TVDB.com seems unavailable." 
     print "[E] Goodbye!"
     sys.exit (1)
-
-
-def on_walkthrough_error (ose_exception):
-    print ose_exception
 
 def find_content_dirs ():
     print "[*] Scanning directories looking for [%s] files" % CONTROL_FILE
@@ -177,14 +167,7 @@ def find_media_files (base_dir, numbering):
 
 def fetch_data (control_data, root, files, overwrite=False):
     # Here connect to TVDB and get the information
-    # and then call write_metadata for each episode - and the show itself
     # http://thetvdb.com/wiki/index.php?title=Programmers_API
-    # 1. http://www.thetvdb.com/api/APIKEY/mirrors.xml.
-    # 2. <mirrorpath_zip>/api/<apikey>/series/<seriesid>/all/<language>.zip
-    # 3. Process the XML data in <language>.xml and store all <Series> data.
-    # 4. Download each series banner in banners.xml and prompt the user to see which they want to keep
-    # 5. Use <language>.xml from step 3 to find and store the data associated with your episode.
-    # 6. Use <filename> from results in step 5a to download the episode image from <mirrorpath_banners>/banners/<filename>.
     # Update tvshow.nfo only on overwrite mode or if it doesn't exists already
 
     tvshow_details = None
